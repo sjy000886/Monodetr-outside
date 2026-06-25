@@ -1,0 +1,31 @@
+
+# Training outputs and model weights
+outputs/
+output/
+checkpoints/
+weights/
+runs/
+work_dirs/
+logs/
+wandb/
+
+*.pth
+*.pt
+*.ckpt
+*.onnx
+
+# Dataset and cache
+data/
+datasets/
+dataset/
+cache/
+.cache/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.vscode/
+.idea/
