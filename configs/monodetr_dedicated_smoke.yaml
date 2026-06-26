@@ -22,7 +22,7 @@ dataset:
   shift: 0.05
   depth_scale: 'normal'
 
-model_name: 'monodetr_dedicated_outside_q10_smoke'
+model_name: 'monodetr_dedicated_outside_q10_smoke200'
 model:
   num_classes: 3
   return_intermediate_dec: True
@@ -99,7 +99,7 @@ lr_scheduler:
 
 trainer:
   max_epoch: 1
-  max_train_batches: 5
+  max_train_batches: 200
   gpu_ids: '0'
   save_frequency: 1
   pretrain_model: outputs/monodetr_10_0.00015/checkpoint_best.pth

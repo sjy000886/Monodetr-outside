@@ -6,7 +6,7 @@ dataset:
   root_dir: '/media/data/dataset/kitti'
   train_split: 'train'
   test_split: 'val'
-  batch_size: 10
+  batch_size: 16
   use_3d_center: True
   class_merging: False
   use_dontcare: False
@@ -27,7 +27,7 @@ dataset:
   depth_scale: 'normal'
 
 
-model_name: 'monodetr_dedicated_outside_q10_ft10_lr2e-5'
+model_name: 'monodetr_dedicated_outside_q10_lr0.0002'
 model:
   num_classes: 3
   return_intermediate_dec: True
@@ -105,9 +105,9 @@ model:
 
 optimizer:
   type: 'adamw'
-  lr: 0.00015
-  outside_query_lr: 0.0001
-  outside_offset_head_lr: 0.0001
+  lr: 0.0002
+  outside_query_lr: 0.0002
+  outside_offset_head_lr: 0.0002
   weight_decay: 0.0001
 
 
@@ -115,15 +115,15 @@ lr_scheduler:
   type: 'step'  # 'step' or 'cos'
   warmup: False  # 5 epoches, cosine warmup, init_lir=0.00001 in default
   decay_rate: 0.1
-  decay_list: [8]
+  decay_list: [125, 165]
 
 
 trainer:
-  max_epoch: 10
+  max_epoch: 195
   gpu_ids: '0'
   save_frequency: 1  # checkpoint save interval (in epoch)
   # resume_model: True
-  pretrain_model: outputs/monodetr_10_0.00015/checkpoint_best.pth
+  # pretrain_model: outputs/monodetr_10_0.00015/checkpoint_best.pth
   save_path: 'outputs/'
   save_all: False  # False for only savng the best and latest ckpts
   use_dn: False
