@@ -307,12 +307,7 @@ class DepthAwareTransformer(nn.Module):
             depth_pos_embed,
             mask_depth, bs=bs, depth_pos_embed_ip=depth_pos_embed_ip,
             pos_embeds=pos_embeds, attn_mask=attn_mask,
-            query_group_num=(1 if outside_query_embed is not None else None),
-            queries_per_group=(
-                query_embed.shape[0]
-                if outside_query_embed is not None
-                else 50
-            ))
+            queries_per_group=self.two_stage_num_proposals)
 
         outside_decoder_outputs = None
         if outside_query_embed is not None:

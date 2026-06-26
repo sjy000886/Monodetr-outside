@@ -64,7 +64,7 @@ def make_target(outside_flags):
     }
 
 
-def build_dedicated_criterion():
+def build_dedicated_criterion(group_num=1):
     matcher = HungarianMatcher(
         cost_class=2.0,
         cost_3dcenter=10.0,
@@ -82,7 +82,7 @@ def build_dedicated_criterion():
                 "labels", "boxes", "cardinality", "depths", "dims",
                 "angles", "center", "depth_map",
             ],
-            group_num=1,
+            group_num=group_num,
             use_outside_center_modeling=True,
             use_dedicated_outside_queries=True,
         )
@@ -124,6 +124,44 @@ class DedicatedOutsideQueriesTest(unittest.TestCase):
             self.assertEqual(
                 tuple(auxiliary["pred_outside_boxes"].shape), (2, 10, 6)
             )
+
+    def test_training_restores_grouped_normal_queries(self):
+        model, transformer = build_dummy_model(
+            True,
+            use_dedicated_outside_queries=True,
+            num_queries=50,
+            num_outside_queries=10,
+            group_num=11,
+        )
+        model.train()
+        outputs = model(*forward_inputs())
+
+        self.assertEqual(tuple(outputs["pred_logits"].shape), (2, 550, 3))
+        self.assertEqual(
+            tuple(outputs["pred_outside_logits"].shape), (2, 10, 3)
+        )
+        self.assertEqual(tuple(transformer.last_hs.shape), (3, 2, 550, 32))
+        self.assertEqual(
+            tuple(transformer.last_outside_hs.shape), (3, 2, 10, 32)
+        )
+
+        criterion = build_dedicated_criterion(group_num=11)
+        losses = criterion(
+            outputs,
+            [make_target([False, True]), make_target([False, False, True])],
+        )
+        self.assertTrue(torch.isfinite(losses["loss_ce"]))
+        self.assertEqual(criterion.last_match_stats["num_inside_gt"], 3)
+        self.assertEqual(criterion.last_match_stats["num_outside_gt"], 2)
+        self.assertEqual(criterion.last_match_stats["num_normal_matches"], 33)
+        self.assertEqual(criterion.last_match_stats["num_outside_matches"], 2)
+
+        model.eval()
+        eval_outputs = model(*forward_inputs())
+        self.assertEqual(tuple(eval_outputs["pred_logits"].shape), (2, 50, 3))
+        self.assertEqual(
+            tuple(eval_outputs["pred_outside_logits"].shape), (2, 10, 3)
+        )
 
     def test_query_embeddings_and_decoder_outputs_are_bidirectionally_isolated(self):
         torch.manual_seed(8)

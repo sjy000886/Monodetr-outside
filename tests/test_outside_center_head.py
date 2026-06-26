@@ -124,7 +124,8 @@ def build_dummy_model(
         use_outside_center_modeling,
         use_dedicated_outside_queries=False,
         num_queries=5,
-        num_outside_queries=10):
+        num_outside_queries=10,
+        group_num=1):
     hidden_dim = 32
     transformer = DummyTransformer(hidden_dim=hidden_dim, num_layers=3)
     model = MonoDETR(
@@ -139,7 +140,7 @@ def build_dummy_model(
         two_stage=False,
         init_box=False,
         use_dab=False,
-        group_num=1,
+        group_num=group_num,
         two_stage_dino=False,
         use_outside_center_modeling=use_outside_center_modeling,
         use_dedicated_outside_queries=use_dedicated_outside_queries,

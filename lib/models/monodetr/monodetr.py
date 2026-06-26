@@ -111,6 +111,7 @@ class MonoDETR(nn.Module):
         super().__init__()
  
         self.num_queries = num_queries
+        self.group_num = group_num
         self.depthaware_transformer = depthaware_transformer
         self.depth_predictor = depth_predictor
         hidden_dim = depthaware_transformer.d_model
@@ -292,11 +293,7 @@ class MonoDETR(nn.Module):
             query_embeds = None
         else:
             if self.training:
-                query_embeds = (
-                    self.query_embed.weight[:self.num_queries]
-                    if self.use_dedicated_outside_queries
-                    else self.query_embed.weight
-                )
+                query_embeds = self.query_embed.weight
             else:
                 # only use one group in inference
                 query_embeds = self.query_embed.weight[:self.num_queries]
@@ -941,7 +938,7 @@ class SetCriterion(nn.Module):
 
     def _forward_dedicated(self, outputs, targets):
         inside_targets, outside_targets = split_targets_by_outside_mask(targets)
-        group_num = 1
+        group_num = self.group_num if self.training else 1
         device = outputs['pred_logits'].device
 
         normal_outputs = {
